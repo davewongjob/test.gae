@@ -15,12 +15,24 @@
 import webapp2
 import json
 from models.user import User
+import jinja2
+import os
 
 
 class MainPage(webapp2.RequestHandler):
+  @webapp2.cached_property
+  def jinja(self):
+    JINJA_ENVIRONMENT = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+        extensions=['jinja2.ext.autoescape', 'jinja2.ext.with_'],
+        autoescape=True)
+    return JINJA_ENVIRONMENT
+
   def get(self):
-    self.response.headers['Content-Type'] = 'text/plain'
-    self.response.write('Hello, World!')
+    template = self.jinja.get_template("index.html")
+    template_values = {}
+    out = template.render(template_values)
+    self.response.write(out)
 
 
 class GetUsers(webapp2.RequestHandler):
